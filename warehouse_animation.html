@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓库工人工作动画</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        warehouse: '#1E40AF',
+                        worker: '#F59E0B',
+                        progress: '#10B981',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .warehouse-shadow {
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            }
+            .bounce-slow {
+                animation: bounce 1.5s infinite;
+            }
+            .bounce-medium {
+                animation: bounce 1s infinite;
+            }
+            .bounce-fast {
+                animation: bounce 0.7s infinite;
+            }
+            @keyframes bounce {
+                0%, 100% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(-15px);
+                }
+            }
+            .progress-animation {
+                transition: width 10s linear;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen p-4 md:p-8 flex flex-col items-center justify-center">
+    <div class="max-w-6xl w-full bg-white rounded-2xl shadow-xl overflow-hidden p-6 md:p-10">
+        <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-slate-800 mb-8 text-center">仓库工人工作流程演示</h1>
+        
+        <div class="flex flex-col md:flex-row gap-8 mb-8">
+            <div class="warehouse-container flex-1 relative">
+                <div id="warehouseA" class="warehouse-shadow bg-warehouse/90 rounded-lg p-6 h-[300px] flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-white">仓库A</h2>
+                        <span id="progressA-text" class="text-white font-medium">0%</span>
+                    </div>
+                    <div class="relative h-6 bg-white/30 rounded-full overflow-hidden">
+                        <div id="progressA" class="absolute top-0 left-0 h-full bg-progress" style="width: 0%"></div>
+                    </div>
+                    <div class="relative flex-1 mt-4">
+                        <div id="workerA1" class="absolute bottom-0 left-10">
+                            <div class="w-10 h-10 bg-worker rounded-full flex items-center justify-center text-white">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-black/70 text-white text-xs px-2 py-1 rounded mb-1">甲</span>
+                        </div>
+                        <div id="workerA2" class="absolute bottom-0 left-32">
+                            <div class="w-10 h-10 bg-worker rounded-full flex items-center justify-center text-white">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-black/70 text-white text-xs px-2 py-1 rounded mb-1">丙</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="warehouse-container flex-1 relative">
+                <div id="warehouseB" class="warehouse-shadow bg-warehouse/90 rounded-lg p-6 h-[300px] flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-white">仓库B</h2>
+                        <span id="progressB-text" class="text-white font-medium">0%</span>
+                    </div>
+                    <div class="relative h-6 bg-white/30 rounded-full overflow-hidden">
+                        <div id="progressB" class="absolute top-0 left-0 h-full bg-progress" style="width: 0%"></div>
+                    </div>
+                    <div class="relative flex-1 mt-4">
+                        <div id="workerB1" class="absolute bottom-0 left-20 opacity-0">
+                            <div class="w-10 h-10 bg-worker rounded-full flex items-center justify-center text-white">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-black/70 text-white text-xs px-2 py-1 rounded mb-1">乙</span>
+                        </div>
+                        <div id="workerB2" class="absolute bottom-0 left-40 opacity-0">
+                            <div class="w-10 h-10 bg-worker rounded-full flex items-center justify-center text-white">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 bg-black/70 text-white text-xs px-2 py-1 rounded mb-1">丙</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <button id="startBtn" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                开始演示
+            </button>
+        </div>
+    </div>
+    
+    <div class="mt-8 text-center text-slate-600 text-sm">
+        <p>演示说明：</p>
+        <p>1. 甲丙先在A仓库干活，乙在B仓库干活</p>
+        <p>2. 甲继续在A仓库干活，乙丙在B仓库干活</p>
+        <p>3. 两个仓库同时完成工作</p>
+        <p>4. 单独工作时，甲需12秒，乙需10秒，丙需15秒完成</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startBtn = document.getElementById('startBtn');
+            const progressA = document.getElementById('progressA');
+            const progressB = document.getElementById('progressB');
+            const progressAtext = document.getElementById('progressA-text');
+            const progressBtext = document.getElementById('progressB-text');
+            const workerA1 = document.getElementById('workerA1');
+            const workerA2 = document.getElementById('workerA2');
+            const workerB1 = document.getElementById('workerB1');
+            const workerB2 = document.getElementById('workerB2');
+            
+            let animationStarted = false;
+            let animationInterval;
+            
+            // 工效 (单位: 每秒完成量)
+            const efficiency = {
+                甲: 1/12,  // 甲单独完成需要12秒
+                乙: 1/10,  // 乙单独完成需要10秒
+                丙: 1/15   // 丙单独完成需要15秒
+            };
+            
+            // 计算最佳阶段时间分配，使两个仓库同时完成
+            // 设第一阶段时间为t1，第二阶段时间为t2
+            // 仓库A的总进度: (甲+丙)*t1 + 甲*t2 = 1
+            // 仓库B的总进度: 乙*t1 + (乙+丙)*t2 = 1
+            // 解方程组得到 t1 = 4.5秒, t2 = 3秒
+            const PHASE1_TIME = 4500; // 第一阶段时间
+            const PHASE2_TIME = 3000; // 第二阶段时间
+            const TOTAL_TIME = PHASE1_TIME + PHASE2_TIME; // 总时间
+            
+            startBtn.addEventListener('click', function() {
+                if (animationStarted) {
+                    resetAnimation();
+                }
+                startBtn.textContent = '重置演示';
+                animationStarted = true;
+                
+                // 重置进度条
+                progressA.style.width = '0%';
+                progressB.style.width = '0%';
+                progressAtext.textContent = '0%';
+                progressBtext.textContent = '0%';
+                
+                // 重置工人位置和动画
+                workerA1.classList.add('bounce-medium');
+                workerA2.classList.add('bounce-slow');
+                workerB1.classList.add('bounce-fast');
+                workerB2.classList.remove('bounce-slow');
+                
+                workerA2.style.opacity = '1';
+                workerB1.style.opacity = '1';
+                workerB2.style.opacity = '0';
+                
+                // 计算各阶段工作效率和进度
+                const phase1A = (efficiency.甲 + efficiency.丙) * (PHASE1_TIME / 1000);
+                const phase1B = efficiency.乙 * (PHASE1_TIME / 1000);
+                const phase2A = efficiency.甲 * (PHASE2_TIME / 1000);
+                const phase2B = (efficiency.乙 + efficiency.丙) * (PHASE2_TIME / 1000);
+                
+                // 动画更新间隔
+                const updateInterval = 100;
+                const stepsPhase1 = PHASE1_TIME / updateInterval;
+                const stepsPhase2 = PHASE2_TIME / updateInterval;
+                
+                let currentStep = 0;
+                let currentPhase = 1;
+                
+                // 清除之前的间隔（如果有）
+                if (animationInterval) clearInterval(animationInterval);
+                
+                animationInterval = setInterval(() => {
+                    if (currentPhase === 1) {
+                        // 第一阶段
+                        currentStep++;
+                        const percentA = Math.min(Math.round(((phase1A / stepsPhase1) * currentStep) * 100), Math.round(phase1A * 100));
+                        const percentB = Math.min(Math.round(((phase1B / stepsPhase1) * currentStep) * 100), Math.round(phase1B * 100));
+                        
+                        progressA.style.width = `${percentA}%`;
+                        progressB.style.width = `${percentB}%`;
+                        progressAtext.textContent = `${percentA}%`;
+                        progressBtext.textContent = `${percentB}%`;
+                        
+                        if (currentStep >= stepsPhase1) {
+                            currentPhase = 2;
+                            currentStep = 0;
+                            
+                            // 切换工人
+                            workerA2.style.opacity = '0';
+                            workerB2.style.opacity = '1';
+                            workerB2.classList.add('bounce-slow');
+                        }
+                    } else if (currentPhase === 2) {
+                        // 第二阶段
+                        currentStep++;
+                        const basePercentA = Math.round(phase1A * 100);
+                        const basePercentB = Math.round(phase1B * 100);
+                        const addedPercentA = Math.min(Math.round(((phase2A / stepsPhase2) * currentStep) * 100), Math.round(phase2A * 100));
+                        const addedPercentB = Math.min(Math.round(((phase2B / stepsPhase2) * currentStep) * 100), Math.round(phase2B * 100));
+                        
+                        const percentA = basePercentA + addedPercentA;
+                        const percentB = basePercentB + addedPercentB;
+                        
+                        progressA.style.width = `${percentA}%`;
+                        progressB.style.width = `${percentB}%`;
+                        progressAtext.textContent = `${percentA}%`;
+                        progressBtext.textContent = `${percentB}%`;
+                        
+                        if (currentStep >= stepsPhase2) {
+                            // 动画完成
+                            clearInterval(animationInterval);
+                            // 确保进度条到达100%
+                            progressA.style.width = '100%';
+                            progressB.style.width = '100%';
+                            progressAtext.textContent = '100%';
+                            progressBtext.textContent = '100%';
+                            
+                            // 停止所有工人的跳动动画
+                            workerA1.classList.remove('bounce-medium');
+                            workerA2.classList.remove('bounce-slow');
+                            workerB1.classList.remove('bounce-fast');
+                            workerB2.classList.remove('bounce-slow');
+                            
+                            startBtn.textContent = '重新开始';
+                        }
+                    }
+                }, updateInterval);
+            });
+            
+            function resetAnimation() {
+                // 清除动画间隔
+                if (animationInterval) clearInterval(animationInterval);
+                
+                // 重置进度条
+                progressA.style.width = '0%';
+                progressB.style.width = '0%';
+                progressAtext.textContent = '0%';
+                progressBtext.textContent = '0%';
+                
+                // 重置工人位置和动画
+                workerA1.classList.remove('bounce-medium');
+                workerA2.classList.remove('bounce-slow');
+                workerB1.classList.remove('bounce-fast');
+                workerB2.classList.remove('bounce-slow');
+                
+                workerA2.style.opacity = '1';
+                workerB1.style.opacity = '1';
+                workerB2.style.opacity = '0';
+                
+                // 重置按钮文本
+                startBtn.textContent = '开始演示';
+                animationStarted = false;
+            }
+        });
+    </script>
+</body>
+</html>
+    
